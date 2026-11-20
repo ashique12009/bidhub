@@ -20,18 +20,6 @@
 </div>
 
 <div class="mb-4">
-  <label>Starting Price</label>
-  <input type="number" step="0.01" name="starting_price"
-    value="{{ old('starting_price', $product->starting_price ?? '') }}"
-    class="w-full border-gray-300 rounded mt-1">
-
-  @error('starting_price')
-    <p class="text-red-500">{{ $message }}</p>
-  @enderror
-</div>
-
-
-<div class="mb-4">
   <label>Product Image</label>
 
   <input type="file" name="image" accept="image/*" class="w-full border-gray-300 rounded mt-1">

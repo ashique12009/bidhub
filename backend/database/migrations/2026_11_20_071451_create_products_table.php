@@ -16,7 +16,6 @@ return new class extends Migration
       $table->string('name');
       $table->text('description')->nullable();
       $table->string('image')->nullable();
-      $table->decimal('starting_price', 12, 2);
       $table->enum('status', ['active', 'inactive'])->default('active');
       $table->timestamps();
     });

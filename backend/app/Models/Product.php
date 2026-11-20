@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Product extends Model
 {
@@ -10,7 +11,11 @@ class Product extends Model
     'name',
     'description',
     'image',
-    'starting_price',
     'status',
   ];
+
+  public function auction(): HasOne
+  {
+    return $this->hasOne(Auction::class);
+  }
 }

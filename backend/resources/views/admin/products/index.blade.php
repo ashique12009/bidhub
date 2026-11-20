@@ -24,7 +24,6 @@
           <tr class="border-b">
             <th class="p-3">Image</th>
             <th class="p-3">Name</th>
-            <th class="p-3">Starting Price</th>
             <th class="p-3">Status</th>
             <th class="p-3">Actions</th>
           </tr>
@@ -43,7 +42,6 @@
                 @endif
               </td>
               <td class="p-3">{{ $product->name }}</td>
-              <td class="p-3">{{ $product->starting_price }}</td>
               <td class="p-3">{{ $product->status }}</td>
               <td class="p-3">
                 <a href="{{ route('admin.products.edit', $product) }}"
