@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\AuctionController;
 
 Route::get('/', function () {
   return view('welcome');
@@ -39,6 +40,7 @@ Route::middleware(['auth', 'admin'])
   ->name('admin.')
   ->group(function () {
     Route::resource('products', ProductController::class);
+    Route::resource('auctions', AuctionController::class);
 });
 
 // Customer routes
