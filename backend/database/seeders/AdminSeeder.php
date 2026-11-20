@@ -17,7 +17,7 @@ class AdminSeeder extends Seeder
     User::create([
       'name' => 'Admin',
       'email' => 'admin@bidhub.com',
-      'password' => Hash::make('password'),
+      'password' => Hash::make('admin12009'),
       'role' => 'admin',
     ]);
   }
