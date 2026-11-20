@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -27,7 +28,12 @@ class ProductController extends Controller
         'description'     => 'nullable|string',
         'starting_price'  => 'required|numeric|min:0',
         'status'          => 'required|in:active,inactive',
+        'image'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
       ]);
+
+      if ($request->hasFile('image')) {
+        $validated['image'] = $request->file('image')->store('products', 'public');
+      }
 
       Product::create($validated);
 
@@ -44,11 +50,20 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
       $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'starting_price' => 'required|numeric|min:0',
-        'status' => 'required|in:active,inactive',
+        'name'            => 'required|string|max:255',
+        'description'     => 'nullable|string',
+        'starting_price'  => 'required|numeric|min:0',
+        'status'          => 'required|in:active,inactive',
+        'image'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
       ]);
+
+      if ($request->hasFile('image')) {
+        if ($product->image) {
+          Storage::disk('public')->delete($product->image);
+        }
+
+        $validated['image'] = $request->file('image')->store('products', 'public');
+      }
 
       $product->update($validated);
 
@@ -59,6 +74,10 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+      if ($product->image) {
+        Storage::disk('public')->delete($product->image);
+      }
+      
       $product->delete();
 
       return redirect()
