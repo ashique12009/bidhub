@@ -63,6 +63,7 @@
       type="datetime-local"
       name="start_time"
       id="start_time"
+      min="{{ now()->format('Y-m-d\TH:i') }}"
       value="{{ old('start_time', isset($auction) ? $auction->start_time->format('Y-m-d\TH:i') : '') }}"
       class="w-full border-gray-300 rounded-md shadow-sm"
       required
