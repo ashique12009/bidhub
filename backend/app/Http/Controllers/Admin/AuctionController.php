@@ -7,6 +7,7 @@ use App\Models\Auction;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreAuctionRequest;
+use App\Http\Requests\UpdateAuctionRequest;
 
 class AuctionController extends Controller
 {
@@ -44,16 +45,9 @@ class AuctionController extends Controller
     return view('admin.auctions.edit', compact('auction', 'products'));
   }
 
-  public function update(Request $request, Auction $auction)
+  public function update(UpdateAuctionRequest $request, Auction $auction)
   {
-    $validated = $request->validate([
-      'product_id'      => 'required|exists:products,id|unique:auctions,product_id,' . $auction->id,
-      'starting_price'  => 'required|numeric|min:0',
-      'start_time'      => 'required|date',
-      'end_time'        => 'required|date|after:start_time',
-    ]);
-
-    $auction->update($validated);
+    $auction->update($request->validated());
 
     return redirect()
       ->route('admin.auctions.index')
