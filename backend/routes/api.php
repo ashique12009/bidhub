@@ -6,10 +6,16 @@ use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\AuctionController;
 use App\Http\Controllers\Api\V1\BidController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\UserController;
 
-Route::get('/user', function (Request $request) {
-  return $request->user();
-})->middleware('auth:sanctum');
+// Route::get('/user', function (Request $request) {
+//   return $request->user();
+// })->middleware('auth:sanctum');
+
+Route::middleware('auth:sanctum')->group(function () {
+  Route::get('/user', [UserController::class, 'profile']);
+  Route::get('/user/bids', [UserController::class, 'bids']);
+});
 
 Route::prefix('v1')->group(function () {
   Route::get('/products', [ProductController::class, 'index']);

@@ -25,17 +25,17 @@ class BidController extends Controller {
       ], 422);
     }
 
-    $highestBid = $auction->bids()->max('amount');
+    $highestBid = $auction->bids()->max('bid_amount');
 
     $minimumAmount = $highestBid ?? $auction->starting_price;
 
     $validated = $request->validate([
-      'amount' => ['required', 'numeric', 'gt:' . $minimumAmount],
+      'bid_amount' => ['required', 'numeric', 'gt:' . $minimumAmount],
     ]);
 
     $bid = $auction->bids()->create([
       'user_id'     => $request->user()->id,
-      'bid_amount'  => $validated['amount'],
+      'bid_amount'  => $validated['bid_amount'],
     ]);
 
     return new BidResource($bid->load('user'));
