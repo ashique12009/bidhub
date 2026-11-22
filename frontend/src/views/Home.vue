@@ -9,6 +9,7 @@ import FeaturedItems from '../components/FeaturedItems.vue'
     <div class="container">
       <HomeHero />
       <FeaturedItems />
+      
     </div>
   </main>
 </template>
