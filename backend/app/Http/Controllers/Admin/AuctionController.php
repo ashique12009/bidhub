@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Auction;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreAuctionRequest;
 
 class AuctionController extends Controller
 {
@@ -23,20 +24,13 @@ class AuctionController extends Controller
     return view('admin.auctions.create', compact('products'));
   }
 
-  public function store(Request $request)
+  public function store(StoreAuctionRequest $request)
   {
-    $validated = $request->validate([
-      'product_id'      => 'required|exists:products,id|unique:auctions,product_id',
-      'starting_price'  => 'required|numeric|min:0',
-      'start_time'      => 'required|date|after:now',
-      'end_time'        => 'required|date|after:start_time',
-    ]);
-
-    Auction::create($validated);
+    Auction::create($request->validated());
 
     return redirect()
-      ->route('admin.auctions.index')
-      ->with('success', 'Auction created successfully.');
+        ->route('admin.auctions.index')
+        ->with('success', 'Auction created successfully.');
   }
 
   public function edit(Auction $auction)
