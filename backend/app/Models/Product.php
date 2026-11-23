@@ -12,6 +12,7 @@ class Product extends Model
     'description',
     'image',
     'status',
+    'is_featured',
   ];
 
   public function auction(): HasOne

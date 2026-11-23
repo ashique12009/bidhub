@@ -16,4 +16,10 @@ class ProductController extends Controller {
   public function show(Product $product) {
     return new ProductResource($product);
   }
+
+  // Get featured products
+  public function featured() {
+    $products = Product::where('is_featured', true)->latest()->paginate(3);
+    return ProductResource::collection($products);
+  }
 }
