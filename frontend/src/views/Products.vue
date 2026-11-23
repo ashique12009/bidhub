@@ -30,7 +30,7 @@ onMounted(async () => {
       <p v-else-if="error">{{ error }}</p>
 
       <div v-else-if="products.length" class="row">
-        <ItemCard v-for="product in products" :item="product" :key="product.id" class="col-md-4 mb-4" />
+        <ItemCard v-for="product in products" :item="product" :key="product.id" />
       </div>
 
       <p v-else>No products found.</p>
