@@ -19,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::prefix('v1')->group(function () {
   Route::get('/products', [ProductController::class, 'index']);
+  Route::get('/products/featured', [ProductController::class, 'featured']);
   Route::get('/products/{product}', [ProductController::class, 'show']);
 
   Route::get('/auctions', [AuctionController::class, 'index']);
