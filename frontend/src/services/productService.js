@@ -6,6 +6,12 @@ export const getProducts = async () => {
   return response.data;
 };
 
+export const getProduct = async (id) => {
+  const response = await api.get(`/products/${id}`);
+
+  return response.data;
+};
+
 // Get featured products
 export const getFeaturedProducts = async () => {
   const response = await api.get("/products/featured");

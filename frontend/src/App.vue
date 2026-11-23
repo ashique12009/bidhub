@@ -5,9 +5,25 @@ import Footer from './components/Footer.vue'
 </script>
 
 <template>
-  <Navbar />
+  <div class="app-layout">
+    <Navbar />
 
-  <RouterView />
+    <main class="app-content">
+      <RouterView />
+    </main>
 
-  <Footer />
+    <Footer />
+  </div>
 </template>
+
+<style scoped>
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1;
+}
+</style>
