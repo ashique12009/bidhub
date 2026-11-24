@@ -5,6 +5,7 @@ import About from "../views/About.vue";
 import Products from "../views/Products.vue";
 import Auctions from "../views/Auctions.vue";
 import Contact from "../views/Contact.vue";
+import AuctionDetails from "../views/AuctionDetails.vue";
 
 const routes = [
   {
@@ -26,6 +27,11 @@ const routes = [
     path: "/auctions",
     name: "Auctions",
     component: Auctions,
+  },
+  {
+    path: "/auctions/:id",
+    name: "auction.details",
+    component: AuctionDetails,
   },
   {
     path: "/contact",

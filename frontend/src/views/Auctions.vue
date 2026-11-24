@@ -58,8 +58,15 @@ const formatDate = (date) => {
     minute: '2-digit',
   });
 };
-</script>
 
+const getStatusClass = (status) => {
+  return {
+    ended: 'text-danger',
+    active: 'text-success',
+    scheduled: 'text-warning',
+  }[status] || 'text-secondary';
+};
+</script>
 
 <template>
   <div class="container py-5">
@@ -116,20 +123,20 @@ const formatDate = (date) => {
             </p>
 
             <p class="mb-1">
-              Start Date and Time:
+              Start:
               <strong>
                 {{ formatDate(auction.start_time) }}
               </strong>
             </p>
 
-            <p class="mb-1">
+            <p class="mb-1 text-danger">
               Ends:
               {{ formatDate(auction.end_time) }}
             </p>
 
             <p class="mb-3">
               Status:
-              <strong class="text-uppercase">
+              <strong class="text-uppercase" :class="getStatusClass(auction.status)">
                 {{ auction.status }}
               </strong>
             </p>
