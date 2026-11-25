@@ -1,10 +1,12 @@
 <?php
+
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\BidResource;
 use App\Models\Auction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BidController extends Controller {
   public function index(Auction $auction) {
@@ -17,27 +19,46 @@ class BidController extends Controller {
   }
 
   public function store(Request $request, Auction $auction) {
-    $now = now();
+    return DB::transaction(function () use ($request, $auction) {
+      // Lock auction row to prevent concurrent bids
+      $lockedAuction = Auction::query()
+          ->whereKey($auction->id)
+          ->lockForUpdate()
+          ->firstOrFail();
 
-    if ($now->lt($auction->start_time) || $now->gte($auction->end_time)) {
-      return response()->json([
-        'message' => 'Auction is not active.',
-      ], 422);
-    }
+      $now = now();
 
-    $highestBid = $auction->bids()->max('bid_amount');
+      // Check auction time
+      if (
+        $now->lt($lockedAuction->start_time) ||
+        $now->gte($lockedAuction->end_time)
+      ) {
+        return response()->json([
+          'message' => 'Auction is not active.',
+        ], 422);
+      }
 
-    $minimumAmount = $highestBid ?? $auction->starting_price;
+      // Find the current highest bid
+      $highestBid = $lockedAuction->bids()->max('bid_amount');
 
-    $validated = $request->validate([
-      'bid_amount' => ['required', 'numeric', 'gt:' . $minimumAmount],
-    ]);
+      $minimumAmount = $highestBid ?? $lockedAuction->starting_price;
 
-    $bid = $auction->bids()->create([
-      'user_id'     => $request->user()->id,
-      'bid_amount'  => $validated['bid_amount'],
-    ]);
+      // Validate bid amount
+      $validated = $request->validate([
+        'bid_amount' => [
+          'required',
+          'numeric',
+          'gt:' . $minimumAmount,
+        ],
+      ]);
 
-    return new BidResource($bid->load('user'));
+      // Save bid
+      $bid = $lockedAuction->bids()->create([
+        'user_id'    => $request->user()->id,
+        'bid_amount' => $validated['bid_amount'],
+      ]);
+
+      return new BidResource($bid->load('user'));
+    });
   }
 }

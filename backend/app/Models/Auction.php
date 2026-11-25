@@ -15,6 +15,11 @@ class Auction extends Model {
     'status',
   ];
 
+  protected $casts = [
+    'start_time' => 'datetime',
+    'end_time'   => 'datetime',
+  ];
+
   protected function casts(): array {
     return [
       'starting_price'  => 'decimal:2',

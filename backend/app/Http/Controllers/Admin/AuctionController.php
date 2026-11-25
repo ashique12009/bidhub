@@ -8,6 +8,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreAuctionRequest;
 use App\Http\Requests\UpdateAuctionRequest;
+use Carbon\Carbon;
 
 class AuctionController extends Controller {
   public function index() {
@@ -23,7 +24,20 @@ class AuctionController extends Controller {
   }
 
   public function store(StoreAuctionRequest $request) {
-    Auction::create($request->validated());
+    $data = $request->validate([
+      'start_time' => ['required', 'date'],
+      'end_time'   => ['required', 'date', 'after:start_time'],
+    ]);
+
+    $data['start_time'] = Carbon::parse(
+      $data['start_time'],
+      'Europe/Helsinki'
+    )->utc();
+
+    $data['end_time'] = Carbon::parse(
+      $data['end_time'],
+      'Europe/Helsinki'
+    )->utc();
 
     return redirect()
       ->route('admin.auctions.index')
@@ -41,7 +55,22 @@ class AuctionController extends Controller {
   }
 
   public function update(UpdateAuctionRequest $request, Auction $auction) {
-    $auction->update($request->validated());
+    $data = $request->validate([
+      'start_time' => ['required', 'date'],
+      'end_time'   => ['required', 'date', 'after:start_time'],
+    ]);
+
+    $data['start_time'] = Carbon::parse(
+      $data['start_time'],
+      'Europe/Helsinki'
+    )->utc();
+
+    $data['end_time'] = Carbon::parse(
+      $data['end_time'],
+      'Europe/Helsinki'
+    )->utc();
+
+    $auction->update($data);
 
     return redirect()
       ->route('admin.auctions.index')

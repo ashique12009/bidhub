@@ -59,11 +59,11 @@
               </td>
 
               <td class="border p-3">
-                {{ $auction->start_time->format('d M Y H:i') }}
+                {{ $auction->start_time->timezone(config('app.display_timezone'))->format('d M Y H:i') }}
               </td>
 
               <td class="border p-3">
-                {{ $auction->end_time->format('d M Y H:i') }}
+                {{ $auction->end_time->timezone(config('app.display_timezone'))->format('d M Y H:i') }}
               </td>
 
               <td class="border p-3 space-x-2">
