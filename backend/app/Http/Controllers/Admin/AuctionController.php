@@ -39,6 +39,8 @@ class AuctionController extends Controller {
       'Europe/Helsinki'
     )->utc();
 
+    Auction::create($data);
+
     return redirect()
       ->route('admin.auctions.index')
       ->with('success', 'Auction created successfully.');
