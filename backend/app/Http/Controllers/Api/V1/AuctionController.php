@@ -8,7 +8,10 @@ use App\Models\Auction;
 
 class AuctionController extends Controller {
   public function index() {
-    $auctions = Auction::with('product')->latest()->paginate(6);
+    $auctions = Auction::with('product')
+        ->withMax('bids', 'bid_amount')
+        ->latest()
+        ->paginate(6);
 
     return AuctionResource::collection($auctions);
   }

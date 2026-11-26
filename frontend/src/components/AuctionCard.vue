@@ -109,7 +109,7 @@ onUnmounted(() => {
 
       <p class="mb-1">
         Current Price:
-        <strong>{{ auction.current_price ?? auction.starting_price }}</strong>
+        <strong>{{ auction.current_price }}</strong>
       </p>
 
       <!-- Start Time -->

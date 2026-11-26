@@ -20,6 +20,7 @@ class AuctionResource extends JsonResource {
     return [
       'id'             => $this->id,
       'starting_price' => $this->starting_price,
+      'current_price'  => $this->bids_max_bid_amount ?? $this->starting_price,
       'start_time'     => $this->start_time,
       'end_time'       => $this->end_time,
       'status'         => $status,
