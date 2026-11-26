@@ -2,9 +2,11 @@
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import api from '../api/axios';
+import { useAuthStore } from '../stores/auth';
 
 const router = useRouter();
 const route = useRoute();
+const auth = useAuthStore();
 
 const email = ref('');
 const password = ref('');
@@ -21,13 +23,10 @@ const login = async () => {
       password: password.value,
     });
 
-    // Save token
-    localStorage.setItem('token', response.data.token);
+    // Update Pinia store and localStorage
+    auth.setAuth(response.data);
 
-    // Save user information
-    localStorage.setItem('user', JSON.stringify(response.data.user));
-
-    // Redirect to previous page, or Home
+    // Redirect after login
     const redirect = route.query.redirect || '/';
 
     router.push(redirect);
