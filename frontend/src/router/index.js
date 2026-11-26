@@ -6,6 +6,7 @@ import Products from "../views/Products.vue";
 import Auctions from "../views/Auctions.vue";
 import Contact from "../views/Contact.vue";
 import AuctionDetails from "../views/AuctionDetails.vue";
+import Login from "../views/Login.vue";
 
 const routes = [
   {
@@ -38,6 +39,11 @@ const routes = [
     name: "Contact",
     component: Contact,
   },
+  {
+    path: "/login",
+    name: "Login",
+    component: () => Login,
+  }
 ];
 
 const router = createRouter({
