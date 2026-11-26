@@ -19,12 +19,12 @@
 
       <p class="mb-2">
         <strong>Start Time:</strong>
-        {{ $auction->start_time->format('d M Y H:i') }}
+        {{ $auction->start_time->timezone(config('app.display_timezone'))->format('d M Y H:i') }}
       </p>
 
       <p class="mb-2">
         <strong>End Time:</strong>
-        {{ $auction->end_time->format('d M Y H:i') }}
+        {{ $auction->end_time->timezone(config('app.display_timezone'))->format('d M Y H:i') }}
       </p>
 
       <p class="mb-4">
