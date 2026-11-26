@@ -1,9 +1,13 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { getAuctionById } from '../services/auctionService';
+import api from '../api/axios';
+import { useAuthStore } from '../stores/auth';
 
 const route = useRoute();
+const router = useRouter();
+const auth = useAuthStore();
 
 const auction = ref(null);
 const loading = ref(true);
@@ -11,10 +15,13 @@ const error = ref(null);
 
 const bidAmount = ref('');
 const bidError = ref('');
+const bidSuccess = ref('');
+const submittingBid = ref(false);
 
 const now = ref(Date.now());
 let timer = null;
 
+// Fetch auction details
 const fetchAuction = async () => {
   loading.value = true;
   error.value = null;
@@ -22,8 +29,6 @@ const fetchAuction = async () => {
   try {
     const response = await getAuctionById(route.params.id);
 
-    // Laravel API Resource হলে data.data,
-    // সরাসরি object হলে response.data
     auction.value = response?.data?.data ?? response?.data ?? null;
 
     if (!auction.value) {
@@ -39,6 +44,7 @@ const fetchAuction = async () => {
   }
 };
 
+// Auction start and end timestamps
 const startTime = computed(() => {
   return auction.value?.start_time
     ? new Date(auction.value.start_time).getTime()
@@ -51,6 +57,7 @@ const endTime = computed(() => {
     : null;
 });
 
+// Auction status
 const auctionStatus = computed(() => {
   if (!auction.value || !startTime.value || !endTime.value) {
     return 'Unknown';
@@ -67,6 +74,7 @@ const auctionStatus = computed(() => {
   return 'Live';
 });
 
+// Countdown
 const countdown = computed(() => {
   const target =
     auctionStatus.value === 'Upcoming'
@@ -101,6 +109,7 @@ const countdown = computed(() => {
   return `${days}d ${hours}h ${minutes}m ${seconds}s`;
 });
 
+// Current price
 const currentPrice = computed(() => {
   return Number(
     auction.value?.current_price ??
@@ -109,12 +118,14 @@ const currentPrice = computed(() => {
   );
 });
 
+// Minimum next bid
 const minimumBid = computed(() => {
   return currentPrice.value + 1;
 });
 
 const formattedStatus = computed(() => auctionStatus.value);
 
+// Price formatting
 const formatPrice = (price) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -122,6 +133,7 @@ const formatPrice = (price) => {
   }).format(Number(price || 0));
 };
 
+// Date formatting
 const formatDate = (date) => {
   if (!date) return 'Not available';
 
@@ -137,21 +149,70 @@ const formatDate = (date) => {
   }).format(new Date(date));
 };
 
-const submitBid = () => {
-  bidError.value = '';
+// Guest wants to place a bid
+const goToLogin = () => {
+  router.push({
+    name: 'Login',
+    query: {
+      redirect: route.fullPath,
+    },
+  });
+};
 
+// Submit bid
+const submitBid = async () => {
+  bidError.value = '';
+  bidSuccess.value = '';
+
+  // Check authentication
+  if (!auth.isAuthenticated) {
+    goToLogin();
+    return;
+  }
+
+  // Check auction status
   if (auctionStatus.value !== 'Live') {
     bidError.value = 'Bidding is not available right now.';
     return;
   }
 
-  if (!bidAmount.value || Number(bidAmount.value) < minimumBid.value) {
+  // Validate bid amount
+  const amount = Number(bidAmount.value);
+
+  if (!bidAmount.value || !Number.isFinite(amount) || amount < minimumBid.value) {
     bidError.value = `Your bid must be at least ${formatPrice(minimumBid.value)}.`;
     return;
   }
 
-  // Bid submission API will be connected in our next step.
-  bidError.value = 'Bid API will be connected in the next step.';
+  submittingBid.value = true;
+
+  try {
+    await api.post(`/auctions/${route.params.id}/bids`, {
+      bid_amount: amount,
+    });
+
+    bidSuccess.value = 'Your bid has been placed successfully!';
+    bidAmount.value = '';
+
+    // Refresh auction details to get the latest price
+    await fetchAuction();
+
+  } catch (err) {
+    if (err.response?.status === 401) {
+      auth.logout();
+      goToLogin();
+      return;
+    }
+
+    const validationErrors = err.response?.data?.errors;
+
+    bidError.value =
+      validationErrors?.bid_amount?.[0] ||
+      err.response?.data?.message ||
+      'Failed to place your bid. Please try again.';
+  } finally {
+    submittingBid.value = false;
+  }
 };
 
 onMounted(() => {
@@ -201,6 +262,7 @@ onUnmounted(() => {
       <div class="col-lg-6">
         <div class="auction-details-content">
 
+          <!-- Auction Status -->
           <span class="badge mb-3" :class="{
             'bg-success': formattedStatus === 'Live',
             'bg-warning text-dark': formattedStatus === 'Upcoming',
@@ -218,6 +280,7 @@ onUnmounted(() => {
             {{ auction.product?.description || 'No description available.' }}
           </p>
 
+          <!-- Price and Countdown -->
           <div class="border rounded p-4 mb-4">
 
             <div class="mb-3">
@@ -231,9 +294,7 @@ onUnmounted(() => {
             <div class="row g-3">
 
               <div class="col-6">
-                <small class="text-muted">
-                  Starting Price
-                </small>
+                <small class="text-muted">Starting Price</small>
 
                 <h5>
                   {{ formatPrice(auction.starting_price) }}
@@ -241,9 +302,7 @@ onUnmounted(() => {
               </div>
 
               <div class="col-6">
-                <small class="text-muted">
-                  Minimum Next Bid
-                </small>
+                <small class="text-muted">Minimum Next Bid</small>
 
                 <h5>
                   {{ formatPrice(minimumBid) }}
@@ -283,13 +342,37 @@ onUnmounted(() => {
 
           </div>
 
-          <!-- Bid Form -->
+          <!-- Bid Section -->
           <div class="card border-0 shadow-sm">
             <div class="card-body">
 
               <h5 class="mb-3">Place Your Bid</h5>
 
-              <form @submit.prevent="submitBid">
+              <!-- Guest User -->
+              <div v-if="!auth.isAuthenticated">
+
+                <p class="text-muted">
+                  You need to login before placing a bid.
+                </p>
+
+                <button v-if="auctionStatus === 'Live'" type="button" class="btn btn-primary w-100" @click="goToLogin">
+                  <i class="bi bi-box-arrow-in-right me-2"></i>
+                  Login to Place Bid
+                </button>
+
+                <button v-else type="button" class="btn btn-secondary w-100" disabled>
+                  {{ auctionStatus === 'Upcoming'
+                    ? 'Auction Not Started'
+                    : auctionStatus === 'Ended'
+                      ? 'Auction Ended'
+                      : 'Bidding Unavailable'
+                  }}
+                </button>
+
+              </div>
+
+              <!-- Authenticated User -->
+              <form v-else @submit.prevent="submitBid">
 
                 <div class="mb-3">
                   <label for="bidAmount" class="form-label">
@@ -297,17 +380,35 @@ onUnmounted(() => {
                   </label>
 
                   <input id="bidAmount" type="number" class="form-control" v-model="bidAmount" :min="minimumBid"
-                    step="0.01" placeholder="Enter your bid" :disabled="auctionStatus !== 'Live'" />
+                    step="0.01" placeholder="Enter your bid" :disabled="auctionStatus !== 'Live' || submittingBid"
+                    required />
+
+                  <small class="text-muted">
+                    Minimum bid: {{ formatPrice(minimumBid) }}
+                  </small>
                 </div>
 
-                <div v-if="bidError" class="alert alert-info py-2">
+                <div v-if="bidError" class="alert alert-danger py-2">
                   {{ bidError }}
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100" :disabled="auctionStatus !== 'Live'">
-                  {{ auctionStatus === 'Live'
-                    ? 'Place Bid'
-                    : 'Bidding unavailable'
+                <div v-if="bidSuccess" class="alert alert-success py-2">
+                  {{ bidSuccess }}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100"
+                  :disabled="auctionStatus !== 'Live' || submittingBid">
+                  <span v-if="submittingBid" class="spinner-border spinner-border-sm me-2"></span>
+
+                  {{ submittingBid
+                    ? 'Placing Bid...'
+                    : auctionStatus === 'Live'
+                      ? 'Place Bid'
+                      : auctionStatus === 'Upcoming'
+                        ? 'Auction Not Started'
+                        : auctionStatus === 'Ended'
+                          ? 'Auction Ended'
+                          : 'Bidding Unavailable'
                   }}
                 </button>
 
