@@ -17,7 +17,8 @@ class AuctionController extends Controller {
   }
 
   public function show(Auction $auction) {
-    $auction->load('product');
+    $auction->load('product')
+        ->loadMax('bids', 'bid_amount');
 
     return new AuctionResource($auction);
   }

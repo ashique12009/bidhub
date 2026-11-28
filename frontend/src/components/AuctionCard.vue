@@ -1,5 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import { formatDate } from '../utils/date';
+import { formatPrice } from '../utils/price';
 
 const props = defineProps({
   auction: {
@@ -10,19 +12,6 @@ const props = defineProps({
 
 const timeLeft = ref('');
 let timer = null;
-
-// Format date according to Finland timezone
-const formatDate = (date) => {
-  if (!date) return 'N/A';
-
-  return new Date(date).toLocaleString('en-FI', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-};
 
 // Get status color
 const getStatusClass = (status) => {
@@ -104,12 +93,12 @@ onUnmounted(() => {
       <!-- Prices -->
       <p class="mb-1">
         Starting Price:
-        <strong>{{ auction.starting_price }}</strong>
+        <strong>{{ formatPrice(auction.starting_price) }}</strong>
       </p>
 
       <p class="mb-1">
         Current Price:
-        <strong>{{ auction.current_price }}</strong>
+        <strong>{{ formatPrice(auction.current_price) }}</strong>
       </p>
 
       <!-- Start Time -->
