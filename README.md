@@ -25,6 +25,9 @@ BidHub is an online auction application. The backend is built with Laravel and t
 - Node.js 22.18 or later (or 24.12 or later) and npm
 
 ## Few Screenshots
+Auction list - backend:
+<img width="3024" height="1500" alt="BidHub-backend-auction-list" src="https://github.com/user-attachments/assets/fb549a87-6d3b-4bae-8d8f-9b31c7d7303d" />
+
 Auction list page:
 <img width="3024" height="2840" alt="BidHub-auction-list" src="https://github.com/user-attachments/assets/9567a39f-3ddb-428e-8d32-ea75ceba45f6" />
 
