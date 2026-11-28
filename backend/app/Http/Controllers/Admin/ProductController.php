@@ -51,6 +51,8 @@ class ProductController extends Controller {
       'image'           => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
     ]);
 
+    $validated['is_featured'] = $request->boolean('is_featured');
+
     if ($request->hasFile('image')) {
       if ($product->image) {
         Storage::disk('public')->delete($product->image);

@@ -1,4 +1,6 @@
 <script setup>
+import { formatPrice } from '../utils/price';
+
 defineProps({
   item: {
     type: Object,
@@ -16,7 +18,7 @@ defineProps({
         <h5 class="card-title">{{ item.name }}</h5>
 
         <p class="card-text">
-          Current bid: <strong>${{ item.currentBid }}</strong>
+          Current bid: <strong>{{ formatPrice(item.auction?.current_price) }}</strong>
         </p>
 
         <a href="/auctions" class="btn btn-primary btn-sm">

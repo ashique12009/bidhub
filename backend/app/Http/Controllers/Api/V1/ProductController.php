@@ -19,7 +19,11 @@ class ProductController extends Controller {
 
   // Get featured products
   public function featured() {
-    $products = Product::where('is_featured', true)->latest()->paginate(3);
+    $products = Product::where('is_featured', true)
+        ->with(['auction' => fn ($query) => $query->withMax('bids', 'bid_amount')])
+        ->latest()
+        ->paginate(3);
+
     return ProductResource::collection($products);
   }
 }
